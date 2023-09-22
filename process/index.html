@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Add a 3D model</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<script type="text/javascript" src="https://code.jquery.com/jquery-latest.js"></script>
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+<style>
+body { margin: 0; padding: 0; }
+#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+.mapboxgl-popup {
+    max-width: 400px;
+    font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+}
+</style>
+
+<script async src="https://unpkg.com/es-module-shims@1.8.0/dist/es-module-shims.js"></script>
+<script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.126.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.126.0/examples/jsm/"
+    }
+  }
+</script>
+
+</head>
+<body>
+<!-- <script src="https://unpkg.com/three@0.126.0/build/three.min.js"></script>
+<script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://unpkg.com/three@0.126.0/examples/js/loaders/OBJLoader.js"></script> -->
+
+<!-- <script type="module" src="https://unpkg.com/three@0.126.0/examples/jsm/loaders/MTLLoader.js"></script> -->
+<!-- <script src="https://unpkg.com/three@0.109.0/examples/jsm/loaders/obj2/bridge/MtlObjBridge.js"></script>
+<script src="https://unpkg.com/three@0.109.0/examples/jsm/loaders/OBJLoader2.js"></script> -->
+<div id="map"></div>
+<script type="module">
+    // import * as THREE from 'three';
+    // import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+    // import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
+    
+    import * as THREE from 'https://unpkg.com/three@0.109.0/build/three.module.js';
+    import {OrbitControls} from 'https://unpkg.com/three@0.109.0/examples/jsm/controls/OrbitControls.js';
+    import {MTLLoader} from 'https://unpkg.com/three@0.109.0/examples/jsm/loaders/MTLLoader.js';
+    import {MtlObjBridge} from 'https://unpkg.com/three@0.109.0/examples/jsm/loaders/obj2/bridge/MtlObjBridge.js';
+    import {OBJLoader2} from 'https://unpkg.com/three@0.109.0/examples/jsm/loaders/OBJLoader2.js';
+
+	mapboxgl.accessToken = 'pk.eyJ1IjoiZGVuZ3NhbmN1biIsImEiOiJja2JuMHJhanAwY2p6MzNvZ3JyenpudG92In0.evanKx_XHk3z8C2GBpPung';
+
+    $.ajax({
+            type: "get",
+            contentType: "application/json",
+            url: "style.json",
+            async: false,
+            dataType: "json",
+            crossDomain: true,
+
+        success: function(result) {
+            console.log(result);
+          
+            const map = new mapboxgl.Map({
+                container: 'map',
+                // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
+                style: result,// ,
+                zoom: 16,
+                center: [121.58466, 31.41688],
+                pitch: 60,
+                hash: true,
+                antialias: true // create the gl context with MSAA antialiasing, so custom layers are antialiased
+            });
+
+            // parameters to ensure the model is georeferenced correctly on the map
+            const modelOrigin = [121.799412, 30.847931];
+            const modelAltitude = -80; // 0
+            const modelRotate = [Math.PI / 2, 0, 0];
+
+            const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
+                modelOrigin,
+                modelAltitude
+            );
+
+            // transformation parameters to position, rotate and scale the 3D model onto the map
+            const modelTransform = {
+                translateX: modelAsMercatorCoordinate.x,
+                translateY: modelAsMercatorCoordinate.y,
+                translateZ: modelAsMercatorCoordinate.z,
+                rotateX: modelRotate[0],
+                rotateY: modelRotate[1],
+                rotateZ: modelRotate[2],
+                /* Since the 3D model is in real world meters, a scale transform needs to be
+                * applied since the CustomLayerInterface expects units in MercatorCoordinates.
+                */
+                scale: 1e-10, // modelAsMercatorCoordinate.meterInMercatorCoordinateUnits()
+            };
+
+            // 2.9097509681835356e-8
+            console.log('modelTransform.scale: ' + modelTransform.scale)
+            
+            // const THREE = window.THREE;
+
+            // configuration of the custom layer for a 3D model per the CustomLayerInterface
+            const customLayer = {
+                id: '3d-model',
+                type: 'custom',
+                renderingMode: '3d',
+                onAdd: function (map, gl) {
+                    this.camera = new THREE.Camera();
+                    this.scene = new THREE.Scene();
+
+                    // create two three.js lights to illuminate the model
+                    const directionalLight = new THREE.DirectionalLight(0xffffff);
+                    directionalLight.position.set(0, -70, 100).normalize();
+                    this.scene.add(directionalLight);
+
+                    const directionalLight2 = new THREE.DirectionalLight(0xffffff);
+                    directionalLight2.position.set(0, 70, 100).normalize();
+                    this.scene.add(directionalLight2);
+
+                    // const loader2 = new OBJLoader();
+                    // loader2.load(
+                    //     'http://127.0.0.1:8080/model/ban.obj',
+                    //     (obj) => {
+                    //         this.scene.add(obj);
+                    //     }
+                    // );
+
+                    const manager = new THREE.LoadingManager();
+                    const matLoader = new MTLLoader(manager);
+                    const loader = new OBJLoader2();
+                    
+                    matLoader.load('http://127.0.0.1:8080/model/ban.mtl', mtlParseResult => {
+                        const materials = MtlObjBridge.addMaterialsFromMtlLoader(mtlParseResult);
+                        loader.addMaterials(materials);
+                        loader.load('http://127.0.0.1:8080/model/ban.obj', obj => {
+                            this.scene.add(obj);
+                        });
+                    });
+
+
+
+                    this.map = map;
+
+                    // use the Mapbox GL JS map canvas for three.js
+                    this.renderer = new THREE.WebGLRenderer({
+                        canvas: map.getCanvas(),
+                        context: gl,
+                        antialias: true
+                    });
+
+                    this.renderer.autoClear = false;
+                },
+                render: function (gl, matrix) {
+                    const rotationX = new THREE.Matrix4().makeRotationAxis(
+                        new THREE.Vector3(1, 0, 0),
+                        modelTransform.rotateX
+                    );
+                    const rotationY = new THREE.Matrix4().makeRotationAxis(
+                        new THREE.Vector3(0, 1, 0),
+                        modelTransform.rotateY
+                    );
+                    const rotationZ = new THREE.Matrix4().makeRotationAxis(
+                        new THREE.Vector3(0, 0, 1),
+                        modelTransform.rotateZ
+                    );
+
+                    const m = new THREE.Matrix4().fromArray(matrix);
+                    const l = new THREE.Matrix4()
+                        .makeTranslation(
+                            modelTransform.translateX,
+                            modelTransform.translateY,
+                            modelTransform.translateZ
+                        )
+                        .scale(
+                            new THREE.Vector3(
+                                modelTransform.scale,
+                                -modelTransform.scale,
+                                modelTransform.scale
+                            )
+                        )
+                        .multiply(rotationX)
+                        .multiply(rotationY)
+                        .multiply(rotationZ);
+
+                    this.camera.projectionMatrix = m.multiply(l);
+                    // this.renderer.resetState();
+                    this.renderer.render(this.scene, this.camera);
+                    this.map.triggerRepaint();
+                }
+            };
+
+            map.on('style.load', () => {
+                map.addLayer(customLayer, 'waterway-label');
+
+                map.on('click', (e) => {
+                    
+                    var bbox = [[e.point.x - 5, e.point.y - 5], [e.point.x + 5, e.point.y + 5]];
+                    var features = map.queryRenderedFeatures(bbox, { layers: ['3d-model'] });
+                    console.log(features);
+
+                });
+                    
+                    // Change the cursor to a pointer when the mouse is over the places layer.
+                map.on('mouseenter', '3d-model', () => {
+                    map.getCanvas().style.cursor = 'pointer';
+                });
+                    
+                    // Change it back to a pointer when it leaves.
+                map.on('mouseleave', '3d-model', () => {
+                    map.getCanvas().style.cursor = '';
+                });
+            });
+
+        },
+        error: function(result, status) {
+
+        }
+    });
+
+    
+</script>
+
+</body>
+</html>

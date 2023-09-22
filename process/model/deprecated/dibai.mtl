@@ -1,0 +1,33 @@
+#
+## Alias OBJ Material File
+# Exported from SketchUp, (c) 2000-2012 Trimble Navigation Limited
+
+newmtl Location_Snapshot
+Ka 0.000000 0.000000 0.000000
+Kd 0.450980 0.450980 0.352941
+Ks 0.330000 0.330000 0.330000
+map_Kd dibai/Location_Snapshot.jpg
+
+newmtl FrontColor
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.330000 0.330000 0.330000
+
+newmtl Polished_Concrete_New
+Ka 0.000000 0.000000 0.000000
+Kd 0.784314 0.784314 0.796078
+Ks 0.330000 0.330000 0.330000
+map_Kd dibai/Polished_Concrete_New.jpg
+
+newmtl Polished_Concrete_Old
+Ka 0.000000 0.000000 0.000000
+Kd 0.431373 0.364706 0.886275
+Ks 0.330000 0.330000 0.330000
+map_Kd dibai/Polished_Concrete_Old.jpg
+
+newmtl Concrete_Aggregate_Smoke
+Ka 0.000000 0.000000 0.000000
+Kd 0.600000 0.121569 0.376471
+Ks 0.330000 0.330000 0.330000
+map_Kd dibai/Concrete_Aggregate_Smoke.jpg
+
