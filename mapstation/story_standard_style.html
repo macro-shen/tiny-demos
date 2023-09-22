@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>House Story</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<script src='https://api.mapbox.com/mapbox-gl-js/v3.0.0-beta.1/mapbox-gl.js'></script>
+<link href='https://api.mapbox.com/mapbox-gl-js/v3.0.0-beta.1/mapbox-gl.css' rel='stylesheet' />
+<style>
+body { margin: 0; padding: 0; }
+#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+	mapboxgl.accessToken = 'pk.eyJ1IjoiZGVuZ3NhbmN1biIsImEiOiJja2JuMHJhanAwY2p6MzNvZ3JyenpudG92In0.evanKx_XHk3z8C2GBpPung';
+    const map = new mapboxgl.Map({
+        container: 'map',
+        style: "mapbox://styles/mapbox/standard-beta",
+        hash: true,
+        attributionControl: false,
+        center: [139.7172, 35.6775],
+        zoom: 10.8,
+    });
+
+    map.on('load', () => {
+        map.addLayer({
+            "id": "flood",
+            "slot": 'bottom',
+            "type": "fill",
+            "source": {
+            type: 'vector',
+            url: 'mapbox://dengsancun.04yi3z32'
+            },
+            "source-layer": "flood",
+            "layout": {"visibility": "visible"},
+            "paint": {
+            "fill-color": [
+                "interpolate",
+                ["linear"],
+                ["get", "A31_001"],
+                11,
+                "rgb(6, 239, 41)",
+                16,
+                "hsl(67, 97%, 57%)",
+                21,
+                "hsl(47, 94%, 61%)",
+                27,
+                "rgb(246, 105, 49)"
+            ]
+        }
+      });
+    });
+</script>
+
+</body>
+</html>
