@@ -14,6 +14,34 @@ body { margin: 0; padding: 0; }
     max-width: 400px;
     font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
 }
+.info-box {
+    height: 300px;
+    width: 200px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 15px;
+    text-align: left;
+}
+.image-box {
+    height: 120px;
+    width: 550px;
+    overflow: hidden;
+    position: absolute;
+    bottom: 25px;
+    right: 10px;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 5px;
+}
+.image-box img {
+    max-width: 100%;
+    max-height: 100%;
+}
+#my-list li:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
 </style>
 
 <script async src="https://unpkg.com/es-module-shims@1.8.0/dist/es-module-shims.js"></script>
@@ -35,7 +63,23 @@ body { margin: 0; padding: 0; }
 <!-- <script type="module" src="https://unpkg.com/three@0.126.0/examples/jsm/loaders/MTLLoader.js"></script> -->
 <!-- <script src="https://unpkg.com/three@0.109.0/examples/jsm/loaders/obj2/bridge/MtlObjBridge.js"></script>
 <script src="https://unpkg.com/three@0.109.0/examples/jsm/loaders/OBJLoader2.js"></script> -->
+<script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.0/mapbox-gl-draw.js"></script>
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.4.0/mapbox-gl-draw.css" type="text/css">
 <div id="map"></div>
+<div class="info-box">
+    <h3>Information</h3>
+    <button type="button" id="identifyBtn">Identify</button>
+    <div id="information-area"></div>
+    <ul id="my-list">
+        <li>冲淤点位 1</li>
+        <li>冲淤点位 2</li>
+        <li>冲淤点位 3</li>
+    </ul>
+</div>
+<div class="image-box">
+    <img id="profile-image" src="" alt="Image description">
+</div>
 <script type="module">
     // import * as THREE from 'three';
     // import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
@@ -49,6 +93,12 @@ body { margin: 0; padding: 0; }
 
 	mapboxgl.accessToken = 'pk.eyJ1IjoiZGVuZ3NhbmN1biIsImEiOiJja2JuMHJhanAwY2p6MzNvZ3JyenpudG92In0.evanKx_XHk3z8C2GBpPung';
 
+    var identify = false;
+    document.querySelector('#identifyBtn').addEventListener('click', () => {
+        identify = !identify;
+        console.log('identify: ' + identify);
+    });
+
     $.ajax({
             type: "get",
             contentType: "application/json",
@@ -58,7 +108,6 @@ body { margin: 0; padding: 0; }
             crossDomain: true,
 
         success: function(result) {
-            console.log(result);
           
             const map = new mapboxgl.Map({
                 container: 'map',
@@ -72,8 +121,8 @@ body { margin: 0; padding: 0; }
             });
 
             // parameters to ensure the model is georeferenced correctly on the map
-            const modelOrigin = [121.799412, 30.847931];
-            const modelAltitude = -80; // 0
+            const modelOrigin = [121.79894923, 30.84266127];
+            const modelAltitude = 0; // 80
             const modelRotate = [Math.PI / 2, 0, 0];
 
             const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
@@ -92,13 +141,248 @@ body { margin: 0; padding: 0; }
                 /* Since the 3D model is in real world meters, a scale transform needs to be
                 * applied since the CustomLayerInterface expects units in MercatorCoordinates.
                 */
-                scale: 1e-10, // modelAsMercatorCoordinate.meterInMercatorCoordinateUnits()
+                scale: modelAsMercatorCoordinate.meterInMercatorCoordinateUnits() //1e-10, // 
             };
 
             // 2.9097509681835356e-8
             console.log('modelTransform.scale: ' + modelTransform.scale)
+            console.log('modelTransform.translateZ: ' + modelTransform.translateZ)
             
             // const THREE = window.THREE;
+            var scene, camera;
+
+            
+            const list = document.querySelector('#my-list');
+                list.addEventListener('click', (event) => {
+                if (event.target.tagName === 'LI') {
+                    console.log(`Clicked on ${event.target.textContent}`);
+                    if(event.target.textContent.indexOf("1") > 0) {
+                        map.flyTo({
+                            center: [
+                                121.7990054,
+                                30.8427346,
+                            ],
+                            zoom: 21.2,
+                            pitch: 55,
+                            bearing: -24,
+                            essential: true // this animation is considered essential with respect to prefers-reduced-motion
+                        });
+                    }
+                    else if(event.target.textContent.indexOf("2") > 0) {
+                        map.flyTo({
+                            center: [
+                                121.8012289,
+                                30.8428064,
+                            ],
+                            zoom: 19.6,
+                            pitch: 50,
+                            bearing: 25,
+                            essential: true // this animation is considered essential with respect to prefers-reduced-motion
+                        });
+                    }
+                    else if(event.target.textContent.indexOf("3") > 0) {
+                        map.flyTo({
+                            center: [
+                                121.8077752,
+                                30.842836,
+                            ],
+                            zoom: 20,
+                            pitch: 65,
+                            bearing: 0,
+                            essential: true // this animation is considered essential with respect to prefers-reduced-motion
+                        });
+                    }
+
+                }
+            });
+
+            const draw = new MapboxDraw({
+                displayControlsDefault: false,
+                // Select which mapbox-gl-draw control buttons to add to the map.
+                controls: {
+                    line_string: true,
+                    trash: true
+                },
+                // Set mapbox-gl-draw to draw by default.
+                // The user does not have to click the polygon control button first.
+                // defaultMode: 'draw_line_string'
+            });
+            map.addControl(draw);
+
+            const profile3Dlist = [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "dita_m_layer",
+                        "model": "dita_m",
+                    },
+                    "geometry": {
+                        "coordinates": [
+                            121.86110677795972,
+                            30.847544271706795
+                        ],
+                        "type": "Point"
+                    }
+                }
+            ]
+
+            map.on('draw.create', updateArea);
+            map.on('draw.delete', updateArea);
+            map.on('draw.update', updateArea);
+            
+            function updateArea(e) {
+                const data = draw.getAll();
+                const informationarea = document.getElementById('information-area');
+                if (data.features.length > 0) {
+                    var line = turf.lineString(data.features[0].geometry.coordinates);
+                    
+                    let minValue = Infinity;
+                    let nearestProfile = null;
+                    for (let i = 0; i < profile3Dlist.length; i++) {
+                        var pt = turf.point(profile3Dlist[i].geometry.coordinates);
+                        var dd = turf.pointToLineDistance(pt, line, {units: 'kilometers'});
+                        if (dd < minValue) {
+                            minValue = dd;
+                            nearestProfile = profile3Dlist[i];
+                        }
+                    }
+
+                    const line_c = data.features[0].geometry.coordinates;
+                    const point1 = turf.point(line_c[0]);
+                    const point2 = turf.point(line_c[line_c.length - 1]);
+                    const center = turf.midpoint(point1, point2);
+                    // addProfile3DLayer(nearestProfile, center.geometry.coordinates);
+
+                    const from  = turf.point(modelOrigin);
+                    const distance = turf.distance(from, center, {units: 'kilometers'});
+
+                    document.querySelector('#information-area').innerHTML = `<p><strong>${JSON.stringify(nearestProfile.properties, null, 2) + ', ' + minValue + ', ' + distance + ' km'}</strong></p>`;
+
+                    let profileNo = 1;
+                    if(distance > 0.9)
+                        profileNo = 1;
+                    else if(distance > 0.8)
+                        profileNo = 2;
+                    else if(distance > 0.6)
+                        profileNo = 3;
+                    else if(distance > 0.4)
+                        profileNo = 4;
+                    else if(distance > 0.2)
+                        profileNo = 5;
+                    else if(distance > 0.0)
+                        profileNo = 6;
+                    const img = document.getElementById('profile-image');
+                    img.src = `http://127.0.0.1:8080/model/test/断面图/断面${profileNo}.JPG`; 
+                } else {
+                    // clearProfile3DLayer();
+
+                    document.querySelector('#information-area').innerHTML = '';
+
+                    const img = document.getElementById('profile-image');
+                    img.src = ''; 
+                }
+            }
+
+            function addProfile3DLayer(profile, line_center_coordinates) {
+                const layerID = profile.properties.name;
+                const modelName = profile.properties.model; // dita_m
+
+                const modelOrigin = line_center_coordinates; //[121.799412, 30.847931];
+                const modelAltitude = 50;
+                const modelRotate = [Math.PI / 2, 0, 0];
+
+                const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
+                    modelOrigin,
+                    modelAltitude
+                );
+
+                const modelTransform = {
+                    translateX: modelAsMercatorCoordinate.x,
+                    translateY: modelAsMercatorCoordinate.y,
+                    translateZ: modelAsMercatorCoordinate.z,
+                    rotateX: modelRotate[0],
+                    rotateY: modelRotate[1],
+                    rotateZ: modelRotate[2],
+                    scale: modelAsMercatorCoordinate.meterInMercatorCoordinateUnits()
+                };
+
+                const customProfileLayer = {
+                    id: layerID,
+                    type: 'custom',
+                    renderingMode: '3d',
+                    onAdd: function (map, gl) {
+                        const manager = new THREE.LoadingManager();
+                        const matLoader = new MTLLoader(manager);
+                        const loader = new OBJLoader2();
+                        
+                        matLoader.load(`http://127.0.0.1:8080/model/test/${modelName}.mtl`, mtlParseResult => {
+                            const materials = MtlObjBridge.addMaterialsFromMtlLoader(mtlParseResult);
+                            loader.addMaterials(materials);
+                            loader.load(`http://127.0.0.1:8080/model/test/${modelName}.obj`, obj => {
+                                scene.add(obj);
+                            });
+                        });
+
+                        this.map = map;
+                        this.renderer = new THREE.WebGLRenderer({
+                            canvas: map.getCanvas(),
+                            context: gl,
+                            antialias: true
+                        });
+
+                        this.renderer.autoClear = false;
+                    },
+                    render: function (gl, matrix) {
+                        const rotationX = new THREE.Matrix4().makeRotationAxis(
+                            new THREE.Vector3(1, 0, 0),
+                            modelTransform.rotateX
+                        );
+                        const rotationY = new THREE.Matrix4().makeRotationAxis(
+                            new THREE.Vector3(0, 1, 0),
+                            modelTransform.rotateY
+                        );
+                        const rotationZ = new THREE.Matrix4().makeRotationAxis(
+                            new THREE.Vector3(0, 0, 1),
+                            modelTransform.rotateZ
+                        );
+
+                        const m = new THREE.Matrix4().fromArray(matrix);
+                        const l = new THREE.Matrix4()
+                            .makeTranslation(
+                                modelTransform.translateX,
+                                modelTransform.translateY,
+                                modelTransform.translateZ
+                            )
+                            .scale(
+                                new THREE.Vector3(
+                                    modelTransform.scale,
+                                    -modelTransform.scale,
+                                    modelTransform.scale
+                                )
+                            )
+                            .multiply(rotationX)
+                            .multiply(rotationY)
+                            .multiply(rotationZ);
+
+                        camera.projectionMatrix = m.multiply(l);
+                        this.renderer.render(scene, camera);
+                        this.map.triggerRepaint();
+                    }
+                };
+
+                map.addLayer(customProfileLayer, 'waterway-label');
+            }
+
+            function clearProfile3DLayer() {
+                for (let i = 0; i < profile3Dlist.length; i++) {
+
+                    const layerID = profile3Dlist[i].properties.name;
+                    const hasProfileLayer = map.getLayer(layerID);
+                    if(hasProfileLayer) {
+                        map.removeLayer(layerID);
+                    }
+                }
+            }
 
             // configuration of the custom layer for a 3D model per the CustomLayerInterface
             const customLayer = {
@@ -106,23 +390,24 @@ body { margin: 0; padding: 0; }
                 type: 'custom',
                 renderingMode: '3d',
                 onAdd: function (map, gl) {
-                    this.camera = new THREE.Camera();
-                    this.scene = new THREE.Scene();
+                    // camera = new THREE.Camera();
+                    camera = new THREE.PerspectiveCamera(28, window.innerWidth / window.innerHeight, 0.1, 1e6);
+                    scene = new THREE.Scene();
 
                     // create two three.js lights to illuminate the model
                     const directionalLight = new THREE.DirectionalLight(0xffffff);
                     directionalLight.position.set(0, -70, 100).normalize();
-                    this.scene.add(directionalLight);
+                    scene.add(directionalLight);
 
                     const directionalLight2 = new THREE.DirectionalLight(0xffffff);
                     directionalLight2.position.set(0, 70, 100).normalize();
-                    this.scene.add(directionalLight2);
+                    scene.add(directionalLight2);
 
                     // const loader2 = new OBJLoader();
                     // loader2.load(
                     //     'http://127.0.0.1:8080/model/ban.obj',
                     //     (obj) => {
-                    //         this.scene.add(obj);
+                    //         scene.add(obj);
                     //     }
                     // );
 
@@ -130,11 +415,13 @@ body { margin: 0; padding: 0; }
                     const matLoader = new MTLLoader(manager);
                     const loader = new OBJLoader2();
                     
-                    matLoader.load('http://127.0.0.1:8080/model/ban.mtl', mtlParseResult => {
+                    // diba-hengsha
+                    // dita-lingang-wenli
+                    matLoader.load('http://127.0.0.1:8080/model/test/dita-lingang.mtl', mtlParseResult => {
                         const materials = MtlObjBridge.addMaterialsFromMtlLoader(mtlParseResult);
                         loader.addMaterials(materials);
-                        loader.load('http://127.0.0.1:8080/model/ban.obj', obj => {
-                            this.scene.add(obj);
+                        loader.load('http://127.0.0.1:8080/model/test/dita-lingang.obj', obj => {
+                            scene.add(obj);
                         });
                     });
 
@@ -183,9 +470,9 @@ body { margin: 0; padding: 0; }
                         .multiply(rotationY)
                         .multiply(rotationZ);
 
-                    this.camera.projectionMatrix = m.multiply(l);
+                    camera.projectionMatrix = m.multiply(l);
                     // this.renderer.resetState();
-                    this.renderer.render(this.scene, this.camera);
+                    this.renderer.render(scene, camera);
                     this.map.triggerRepaint();
                 }
             };
@@ -193,11 +480,58 @@ body { margin: 0; padding: 0; }
             map.on('style.load', () => {
                 map.addLayer(customLayer, 'waterway-label');
 
+                const profile = {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "dita_m_layer",
+                        "model": "dita-lingang",
+                    }
+                }
+                const line_center_coordinates = [121.79895242, 30.84653164];
+                // addProfile3DLayer(profile, line_center_coordinates) 
+
                 map.on('click', (e) => {
                     
-                    var bbox = [[e.point.x - 5, e.point.y - 5], [e.point.x + 5, e.point.y + 5]];
-                    var features = map.queryRenderedFeatures(bbox, { layers: ['3d-model'] });
-                    console.log(features);
+                    if(!identify) return;
+
+                    var findObj = scene.toJSON();
+
+                    const raycaster = new THREE.Raycaster();
+                    raycaster.near = -1;
+                    raycaster.far = 1e6;
+
+                    const pointer = new THREE.Vector2();
+                    // pointer.x = ( e.point.x / window.innerWidth ) * 2 - 1;
+	                // pointer.y = - ( e.point.y / window.innerHeight ) * 2 + 1;
+                    pointer.x = ( e.point.x / map.transform.width ) * 2 - 1;
+                    pointer.y = 1 - ( e.point.y / map.transform.height ) * 2;
+                    
+                    // camera.projectionMatrixInverse.getInverse(camera.projectionMatrix);
+                    // raycaster.setFromCamera(pointer, camera);
+                    // const isPerspectiveCamera = camera.isPerspectiveCamera;
+
+                    const camInverseProjection = new THREE.Matrix4().getInverse(camera.projectionMatrix);
+                    const cameraPosition = new THREE.Vector3().applyMatrix4(camInverseProjection);
+                    const mousePosition = new THREE.Vector3(pointer.x, pointer.y, 1).applyMatrix4(camInverseProjection);
+                    const viewDirection = mousePosition.clone().sub(cameraPosition).normalize();    
+                    raycaster.set(cameraPosition, viewDirection);
+
+                    // calculate objects intersecting the picking ray
+                    const intersects = raycaster.intersectObjects(scene.children, true);
+
+                    if(intersects.length > 0) {
+                        document.querySelector('#information-area').innerHTML = intersects[0].object.name;
+                        console.log(JSON.stringify(intersects[0].object, null, 2));
+                    }
+                    else {
+                        console.log('no intersects');
+                        document.querySelector('#information-area').innerHTML = '';
+                    }
+
+                    
+                    // var bbox = [[e.point.x - 5, e.point.y - 5], [e.point.x + 5, e.point.y + 5]];
+                    // var features = map.queryRenderedFeatures(bbox, { layers: ['3d-model'] });
+                    // console.log(features);
 
                 });
                     

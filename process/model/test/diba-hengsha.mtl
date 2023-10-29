@@ -1,0 +1,62 @@
+#
+## Alias OBJ Material File
+# Exported from SketchUp, (c) 2000-2012 Trimble Navigation Limited
+
+newmtl Color_A04
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 0.196078 0.196078
+Ks 0.330000 0.330000 0.330000
+
+newmtl FrontColor
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.330000 0.330000 0.330000
+
+newmtl Pavers_Flagstone_Gray
+Ka 0.000000 0.000000 0.000000
+Kd 0.635294 0.635294 0.635294
+Ks 0.330000 0.330000 0.330000
+map_Kd dita/Pavers_Flagstone_Gray.jpg
+
+newmtl Aluminum
+Ka 0.000000 0.000000 0.000000
+Kd 0.701961 0.701961 0.701961
+Ks 0.330000 0.330000 0.330000
+map_Kd dita/Aluminum.jpg
+
+newmtl Groundcover_Sand_Raked
+Ka 0.000000 0.000000 0.000000
+Kd 0.647059 0.619608 0.588235
+Ks 0.330000 0.330000 0.330000
+map_Kd dita/Groundcover_Sand_Raked.jpg
+
+newmtl Carpet_Berber_Multi
+Ka 0.000000 0.000000 0.000000
+Kd 0.592157 0.525490 0.478431
+Ks 0.330000 0.330000 0.330000
+map_Kd dita/Carpet_Berber_Multi.jpg
+
+newmtl Vegetation_Grass
+Ka 0.000000 0.000000 0.000000
+Kd 0.564706 0.627451 0.356863
+Ks 0.330000 0.330000 0.330000
+map_Kd dita/Vegetation_Grass.jpg
+
+newmtl Groundcover_Rock_Crushed_Multi
+Ka 0.000000 0.000000 0.000000
+Kd 0.560784 0.521569 0.505882
+Ks 0.330000 0.330000 0.330000
+map_Kd dita/Groundcover_Rock_Crushed_Multi.jpg
+
+newmtl Concrete_Form_4x8
+Ka 0.000000 0.000000 0.000000
+Kd 0.654902 0.666667 0.658824
+Ks 0.330000 0.330000 0.330000
+map_Kd dita/Concrete_Form_4x8.jpg
+
+newmtl Small_Aggregate
+Ka 0.000000 0.000000 0.000000
+Kd 0.501961 0.419608 0.368627
+Ks 0.330000 0.330000 0.330000
+map_Kd dita/Small_Aggregate.jpg
+

@@ -1,0 +1,103 @@
+#
+## Alias OBJ Material File
+# Exported from SketchUp, (c) 2000-2012 Trimble Navigation Limited
+
+newmtl FrontColor
+Ka 0.000000 0.000000 0.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.330000 0.330000 0.330000
+
+newmtl Concrete_Scored_Jointless
+Ka 0.000000 0.000000 0.000000
+Kd 0.549020 0.521569 0.498039
+Ks 0.330000 0.330000 0.330000
+map_Kd dita/Concrete_Scored_Jointless.jpg
+
+newmtl Concrete_Form_4x8
+Ka 0.000000 0.000000 0.000000
+Kd 0.647059 0.658824 0.650980
+Ks 0.330000 0.330000 0.330000
+map_Kd dita/Concrete_Form_4x8.jpg
+
+newmtl Groundcover_Rock_Crushed_Multi
+Ka 0.000000 0.000000 0.000000
+Kd 0.560784 0.521569 0.505882
+Ks 0.330000 0.330000 0.330000
+map_Kd dita/Groundcover_Rock_Crushed_Multi.jpg
+
+newmtl Sketchy_Scales
+Ka 0.000000 0.000000 0.000000
+Kd 0.898039 0.898039 0.898039
+Ks 0.330000 0.330000 0.330000
+map_Kd dita/Sketchy_Scales.jpg
+
+newmtl Color_I08
+Ka 0.000000 0.000000 0.000000
+Kd 0.000000 0.000000 0.400000
+Ks 0.330000 0.330000 0.330000
+
+newmtl niuwang
+Ka 0.000000 0.000000 0.000000
+Kd 0.650980 0.647059 0.631373
+Ks 0.330000 0.330000 0.330000
+map_Kd dita/niuwang.jpg
+
+newmtl Circles
+Ka 0.000000 0.000000 0.000000
+Kd 0.909804 0.909804 0.909804
+Ks 0.330000 0.330000 0.330000
+map_Kd dita/Circles.png
+
+newmtl Sketchy_Siding_Scale
+Ka 0.000000 0.000000 0.000000
+Kd 0.949020 0.949020 0.949020
+Ks 0.330000 0.330000 0.330000
+map_Kd dita/Sketchy_Siding_Scale.jpg
+
+newmtl yixing
+Ka 0.000000 0.000000 0.000000
+Kd 0.717647 0.717647 0.709804
+Ks 0.330000 0.330000 0.330000
+map_Kd dita/yixing.jpg
+
+newmtl Fencing_Metal_Straight
+Ka 0.000000 0.000000 0.000000
+Kd 0.760784 0.764706 0.768627
+Ks 0.330000 0.330000 0.330000
+map_Kd dita/Fencing_Metal_Straight.png
+
+newmtl Polished_Concrete_New
+Ka 0.000000 0.000000 0.000000
+Kd 0.784314 0.784314 0.796078
+Ks 0.330000 0.330000 0.330000
+map_Kd dita/Polished_Concrete_New.jpg
+
+newmtl Crushed_Rock_Gravel
+Ka 0.000000 0.000000 0.000000
+Kd 0.921569 0.921569 0.921569
+Ks 0.330000 0.330000 0.330000
+map_Kd dita/Crushed_Rock_Gravel.png
+
+newmtl Pea_Gravel
+Ka 0.000000 0.000000 0.000000
+Kd 0.576471 0.505882 0.450980
+Ks 0.330000 0.330000 0.330000
+map_Kd dita/Pea_Gravel.jpg
+
+newmtl Water_Pool
+Ka 0.000000 0.000000 0.000000
+Kd 0.250980 0.584314 0.654902
+Ks 0.330000 0.330000 0.330000
+map_Kd dita/Water_Pool.jpg
+
+newmtl Water_Sparkling
+Ka 0.000000 0.000000 0.000000
+Kd 0.176471 0.713725 0.847059
+Ks 0.330000 0.330000 0.330000
+map_Kd dita/Water_Sparkling.jpg
+
+newmtl Color_B08
+Ka 0.000000 0.000000 0.000000
+Kd 0.400000 0.094118 0.000000
+Ks 0.330000 0.330000 0.330000
+
